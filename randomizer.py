@@ -15,6 +15,33 @@ from statistics import mean, median
 from tkinter import *
 from tkinter import ttk
 
+# TODO: move custom functions to utils/util.py later
+######################################
+def range_(start: int, stop: int | None = None, step: int | None = None) -> range:
+	for i in [start, stop, step]:
+		if not isisntance(i, (int, None)):
+			raise TypeError(
+				f'All of start={start}, stop={stop}, step={step} must either be `int` or `None`.'
+			)
+	
+	if start is None:
+		raise ValueError('Argument `start` (arg 1) cannot be `NoneType`')
+	
+	if step is not None and stop is None:
+		raise ValueError(
+			'Argument `step` (arg 3) cannot be not None if `stop` (arg 2) is None.'
+		)
+	
+	if stop is None:
+		return range(start + 1)
+	
+	if step is None:
+		return range(start, stop + 1)
+	
+	return range(start, stop + 1, step)
+
+######################################
+
 # move to file called errors.py later.
 ######################################
 # Errors related to importing PvZ or
@@ -103,7 +130,7 @@ try:
 				virtual_free_ex(
 					pvz_handler,
 					rng_addr,
-					0,
+					0x00,
 					0x8000
 				)
 			
@@ -311,6 +338,7 @@ except:
 
 HAS_SAVE = False
 FILE_INFO = SAVE_FILE.readlines()
+
 if len(FILE_INFO):
 	HAS_SAVE = True
 
@@ -329,7 +357,7 @@ window = Tk()
 window.title('Randomizer settings')
 CHALLENGE_MODE                = BooleanVar(value = False)      #
 SHOPLESS                      = BooleanVar(value = False)      # Shop is inaccessible to the player.
-NO_RESTRICTIONS               = BooleanVar(value = False)      # All restrictions are set to maximum/True/False/On where applicable.
+NO_RESTRICTIONS               = BooleanVar(value = False)
 NO_AUTO_SLOTS                 = BooleanVar(value = True)       # Slots are not automatically set.
 IMITATER                      = BooleanVar(value = False)      # Imitater plant
 RANDOMIZE_PLANTS              = BooleanVar(value = True)       # Plants are given in a random order
@@ -348,7 +376,7 @@ COOLDOWN_COLORING             = StringVar(value = 'False')     #
 RANDOM_ZOMBIES                = BooleanVar(value = False)      # Zombies are randomized based on wavepoints.
 RANDOM_CONVEYORS              = StringVar(value = 'False')     # Plants on the conveyor belt are randomized.
 ENABLE_CRAZY_DAVE             = StringVar(value = 'False')     # Enable Crazy Dave. Why is this an option? Because I'm crazy! Waby waboo.
-DAVE_PLANTS_COUNT             = StringVar(value = '3')         # Number of plants Crazy Dave has in the shop.
+DAVE_PLANTS_COUNT             = StringVar(value = '3')         # Number of plants Crazy Dave has in the shop. By default these are Twin Sunflower, Gatling Pea, and Cob Cannon.
 RANDOM_VARS_CAT_ZOMBIE_HEALTH = StringVar(value = 'Off')       #
 RANDOM_VARS_CAT_FIRE_RATE     = StringVar(value = 'Off')       #
 LIMIT_PREVIEWS                = BooleanVar(value = False)      #
@@ -361,4 +389,105 @@ RANDOM_SOUND                  = BooleanVar(value = False)      # Randomizes the 
 RANDOM_SOUND_CHANCE           = IntVar(value = 3)              # The (integral) percent chance that a sound file is randomized.
 RANDOM_PITCH                  = BooleanVar(value = False)      # Randomizes the pitch of sounds.
 
-seed = random.randint(0x01, 0xFFFFFFFFFF)
+seed = random.randint(0x01, 0xFFFFFFFF)
+
+if HAS_SAVE:
+	for i in range_(21, 36):
+		if len(FILE_INFO) < i:
+			FILE_INFO.append(str([False, False, 3, 'Off', 'Off', False, False, False, 'adventure', False, False, 33, False, False, 3, False][i - 21]))
+	
+	CHALLENGE_MODE.set(              eval(FILE_INFO[4].strip()))
+	SHOPLESS.set(                    eval(FILE_INFO[5].strip()))
+	NO_RESTRICTIONS.set(             eval(FILE_INFO[6].strip()))
+	NO_AUTO_SLOTS.set(               eval(FILE_INFO[7].strip()))
+	IMITATER.set(                    eval(FILE_INFO[8].strip()))
+	RANDOMIZE_PLANTS.set(            eval(FILE_INFO[9].strip()))
+	SEEDED.set(False) # crashes the game if we do `SEEDED.set(eval(FILE_INFO[10].strip()))` for some reason.
+	UPGRADE_REWARDS.set(             eval(FILE_INFO[11].strip()))
+	RANDOM_WEIGHTS.set(              eval(FILE_INFO[12].strip()))
+	RANDOM_WAVE_POINTS.set(               FILE_INFO[13].strip())
+	STARTING_WAVE.set(                    FILE_INFO[14].strip())
+	RANDOM_COST.set(                 eval(FILE_INFO[15].strip()))
+	RANDOM_COOLDOWNS.set(            eval(FILE_INFO[16].strip()))
+	COST_TEXT_TOGGLE.set(            eval(FILE_INFO[17].strip()))
+	RANDOM_ZOMBIES.set(              eval(FILE_INFO[18].strip()))
+	RANDOM_CONVEYORS.set(             str(FILE_INFO[19].strip()))
+	COOLDOWN_COLORING.set(            str(FILE_INFO[20].strip()))
+	ENABLE_DAVE.set(                  str(FILE_INFO[21].strip()))
+	DAVE_PLANTS_COUNT.set(            str(FILE_INFO[22].strip()))
+	RANDOM_VARS_CAT_ZOMBIE_HEALTH.set(str(FILE_INFO[23].strip()))
+	RANDOM_VARS_CAT_FIRE_RATE.set(    str(FILE_INFO[24].strip()))
+	RENDER_WEIGHTS.set(               str(FILE_INFO[25].strip()))
+	RENDER_WAVE_POINTS.set(           str(FILE_INFO[26].strip()))
+	LIMIT_PREVIEWS.set(               str(FILE_INFO[27].strip()) == 'True')
+	GAMEMODE.set(                     str(FILE_INFO[28].strip()))
+	RANDOM_WAVE_COUNT.set(            str(FILE_INFO[29].strip()))
+	RANDOM_WORLD.set(                 str(FILE_INFO[30].strip()))
+	RANDOM_WORLD_CHANCE.set(          int(FILE_INFO[31].strip()))
+	RANDOM_STUFF.set(                 str(FILE_INFO[32].strip()) == 'True')
+	RANDOM_SOUND.set(                 str(FILE_INFO[33].strip()) == 'True')
+	RANDOM_SOUND_CHANCE.set(          int(FILE_INFO[34].strip()))
+	RANDOM_PITCH.set(                 str(FILE_INFO[35].strip()) == 'True')
+	
+	if FILE_INFO[1] == 'finished\n':
+		HAS_SAVE = False
+
+def clamp(n, smallest, largest):
+	return max(smallest, min(n, largest))
+
+def check_valid_lvl_fmt(level: str) -> bool | None:
+	check = True
+	
+	if not 2 < len(level) < 5:
+		check = False
+	
+	if level[0] not in '12345':
+		check = False
+	
+	if level[1] != '-':
+		check = False
+	
+	if level[2] not in '123456789':
+		check = False
+	
+	if len(level) == 4 and level[-2:] != '10':
+		check = False
+	
+	if not check:
+		# Remember to have Python on at least version 3.8 for this to work!
+		print(
+			args := 'Invalid jump error. Use the format `x-y`, where `x` in [1, 2, 3, 4, 5], and `y` in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].'
+		)
+		raise PVZInvalidLevelFormatError(args)
+	
+	else:
+		return True
+
+def convert_to_number(level: str) -> int | None:
+	try:
+		check_valid_lvl_fmt(level)
+	
+	except PVZInvalidLevelFormatError:
+		raise PVZInvalidLevelFormatError(
+			'Invalid jump error. Use the format `x-y`, when `x` in [1, 2, 3, 4, 5], and `y` in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].'
+		)
+	
+	return int(str(int(level[0]) - (len(level) != 4)) + level[2 + (len(level) == 4))
+
+def cost_button_click() -> None:
+	global COST_TEXT_TOGGLE, RANDOM_COST, COST_TEXT_BUTTON
+	if RANDOM_COST.get():
+		COST_TEXT_BUTTON.config(state = NORMAL)
+	
+	else:
+		COST_TEXT_TOGGLE.set(False)
+		COST_TEXT_TOGGLE.config(state = DISABLED)
+
+def cooldown_button_click() -> None:
+	global COOLDOWN_COLORING_TOGGLE, RANDOM_COOLDOWNS
+	if RANDOM_COOLDOWNS.get():
+		COOLDOWN_COLORING_TOGGLE.config(state = NORMAL)
+		COOLDOWN_COLORING_TOGGLE.state(['readonly'])
+	
+	else:
+		COOLDOWN_COLORING_TOGGLE.config(state = DISABLED)

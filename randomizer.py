@@ -297,7 +297,7 @@ try:
 
 except Exception as err:
 	raise PVZNotFoundError(
-		f'PvZ not found!\n\t\t\t\t  Windows: {WINDOWS}\n\t\t\t\t  {traceback.format_exc()}'
+		f'PvZ not found!\n\t\t  Windows: {WINDOWS}\n\t\t  {traceback.format_exc()}'
 	)
 
 try:

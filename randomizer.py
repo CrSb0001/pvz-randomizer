@@ -15,6 +15,9 @@ from statistics import mean, median
 from tkinter import *
 from tkinter import ttk
 
+from errors import *
+from util_helpers import *
+
 # TODO: move custom functions to utils/util.py later
 ######################################
 def range_(start: int, stop: int | None = None, step: int | None = None) -> range:
